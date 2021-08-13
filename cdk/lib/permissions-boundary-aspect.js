@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PermissionsBoundaryAspect = void 0;
+const iam = require("@aws-cdk/aws-iam");
+class PermissionsBoundaryAspect {
+    constructor(permissionBoundaryArn) {
+        this.arn = permissionBoundaryArn;
+    }
+    visit(node) {
+        if (node instanceof iam.Role) {
+            const roleResource = node.node.findChild('Resource');
+            roleResource.addPropertyOverride('PermissionsBoundary', this.arn);
+        }
+    }
+}
+exports.PermissionsBoundaryAspect = PermissionsBoundaryAspect;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicGVybWlzc2lvbnMtYm91bmRhcnktYXNwZWN0LmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsicGVybWlzc2lvbnMtYm91bmRhcnktYXNwZWN0LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUFBLHdDQUF3QztBQUl4QyxNQUFhLHlCQUF5QjtJQUdsQyxZQUFZLHFCQUE2QjtRQUNyQyxJQUFJLENBQUMsR0FBRyxHQUFHLHFCQUFxQixDQUFDO0lBQ3JDLENBQUM7SUFFTSxLQUFLLENBQUMsSUFBZ0I7UUFDekIsSUFBSSxJQUFJLFlBQVksR0FBRyxDQUFDLElBQUksRUFBRTtZQUMxQixNQUFNLFlBQVksR0FBRyxJQUFJLENBQUMsSUFBSSxDQUFDLFNBQVMsQ0FBQyxVQUFVLENBQWdCLENBQUM7WUFDcEUsWUFBWSxDQUFDLG1CQUFtQixDQUFDLHFCQUFxQixFQUFFLElBQUksQ0FBQyxHQUFHLENBQUMsQ0FBQztTQUNyRTtJQUNMLENBQUM7Q0FDSjtBQWJELDhEQWFDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0ICogYXMgaWFtIGZyb20gJ0Bhd3MtY2RrL2F3cy1pYW0nO1xuaW1wb3J0IHsgSUFzcGVjdCwgSUNvbnN0cnVjdCB9IGZyb20gJ0Bhd3MtY2RrL2NvcmUnO1xuXG5cbmV4cG9ydCBjbGFzcyBQZXJtaXNzaW9uc0JvdW5kYXJ5QXNwZWN0IGltcGxlbWVudHMgSUFzcGVjdCB7XG4gICAgcHJpdmF0ZSByZWFkb25seSBhcm46IHN0cmluZztcblxuICAgIGNvbnN0cnVjdG9yKHBlcm1pc3Npb25Cb3VuZGFyeUFybjogc3RyaW5nKSB7XG4gICAgICAgIHRoaXMuYXJuID0gcGVybWlzc2lvbkJvdW5kYXJ5QXJuO1xuICAgIH1cblxuICAgIHB1YmxpYyB2aXNpdChub2RlOiBJQ29uc3RydWN0KTogdm9pZCB7XG4gICAgICAgIGlmIChub2RlIGluc3RhbmNlb2YgaWFtLlJvbGUpIHtcbiAgICAgICAgICAgIGNvbnN0IHJvbGVSZXNvdXJjZSA9IG5vZGUubm9kZS5maW5kQ2hpbGQoJ1Jlc291cmNlJykgYXMgaWFtLkNmblJvbGU7XG4gICAgICAgICAgICByb2xlUmVzb3VyY2UuYWRkUHJvcGVydHlPdmVycmlkZSgnUGVybWlzc2lvbnNCb3VuZGFyeScsIHRoaXMuYXJuKTtcbiAgICAgICAgfVxuICAgIH1cbn1cbiJdfQ==

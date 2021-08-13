@@ -1,0 +1,508 @@
+Description: Website & Mobile starter project
+Parameters:
+  AppId:
+    Type: String
+Resources:
+  trendingServiceRole6BD6BC13:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      PermissionsBoundary:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":iam::"
+            - Ref: AWS::AccountId
+            - :policy/
+            - Ref: AWS::StackName
+            - "-"
+            - Ref: AWS::Region
+            - -PermissionsBoundary
+    Metadata:
+      aws:cdk:path: CdkStack/trending/ServiceRole/Resource
+  trending1BE53318:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: .
+      Role:
+        Fn::GetAtt:
+          - trendingServiceRole6BD6BC13
+          - Arn
+      Description: Gets a list of trending movies for the week from TMDB.
+      Handler: src/handlers/trending.trending
+      Runtime: nodejs14.x
+      Timeout: 60
+    DependsOn:
+      - trendingServiceRole6BD6BC13
+    Metadata:
+      aws:cdk:path: CdkStack/trending/Resource
+  searchServiceRoleF0F013F2:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      PermissionsBoundary:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":iam::"
+            - Ref: AWS::AccountId
+            - :policy/
+            - Ref: AWS::StackName
+            - "-"
+            - Ref: AWS::Region
+            - -PermissionsBoundary
+    Metadata:
+      aws:cdk:path: CdkStack/search/ServiceRole/Resource
+  searchF2A83B93:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: .
+      Role:
+        Fn::GetAtt:
+          - searchServiceRoleF0F013F2
+          - Arn
+      Description: Runs a search against TMDB by submitting user-provided keywords
+      Handler: src/handlers/search.search
+      Runtime: nodejs14.x
+      Timeout: 60
+    DependsOn:
+      - searchServiceRoleF0F013F2
+    Metadata:
+      aws:cdk:path: CdkStack/search/Resource
+  movieDetailsServiceRole257C765B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      PermissionsBoundary:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":iam::"
+            - Ref: AWS::AccountId
+            - :policy/
+            - Ref: AWS::StackName
+            - "-"
+            - Ref: AWS::Region
+            - -PermissionsBoundary
+    Metadata:
+      aws:cdk:path: CdkStack/movieDetails/ServiceRole/Resource
+  movieDetails0B2D7B6A:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: .
+      Role:
+        Fn::GetAtt:
+          - movieDetailsServiceRole257C765B
+          - Arn
+      Description: Get the details for a given movie from the TMDB.
+      Handler: src/handlers/movieDetails.movieDetails
+      Runtime: nodejs14.x
+      Timeout: 60
+    DependsOn:
+      - movieDetailsServiceRole257C765B
+    Metadata:
+      aws:cdk:path: CdkStack/movieDetails/Resource
+  ServerlessRestApiCF2706A6:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ServerlessRestApi
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Resource
+  ServerlessRestApiDeployment3BF8AA9136537690678552a6d54494eff5dd41cd:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - ServerlessRestApikeywordsGETDAC2FE42
+      - ServerlessRestApikeywords42E69B19
+      - ServerlessRestApimovieIDGETA7B0735A
+      - ServerlessRestApimovieID2FA004FA
+      - ServerlessRestApiGET34A610DA
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Deployment/Resource
+  ServerlessRestApiDeploymentStageprodA626EFFC:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+      DeploymentId:
+        Ref: ServerlessRestApiDeployment3BF8AA9136537690678552a6d54494eff5dd41cd
+      StageName: prod
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/DeploymentStage.prod/Resource
+  ServerlessRestApiGETApiPermissionCdkStackServerlessRestApi595C3DABGET76439360:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - trending1BE53318
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ServerlessRestApiCF2706A6
+            - /
+            - Ref: ServerlessRestApiDeploymentStageprodA626EFFC
+            - /GET/
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/GET/ApiPermission.CdkStackServerlessRestApi595C3DAB.GET..
+  ServerlessRestApiGETApiPermissionTestCdkStackServerlessRestApi595C3DABGET7D503C7D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - trending1BE53318
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ServerlessRestApiCF2706A6
+            - /test-invoke-stage/GET/
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/GET/ApiPermission.Test.CdkStackServerlessRestApi595C3DAB.GET..
+  ServerlessRestApiGET34A610DA:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Fn::GetAtt:
+          - ServerlessRestApiCF2706A6
+          - RootResourceId
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - trending1BE53318
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/GET/Resource
+  ServerlessRestApikeywords42E69B19:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ServerlessRestApiCF2706A6
+          - RootResourceId
+      PathPart: "{keywords}"
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{keywords}/Resource
+  ServerlessRestApikeywordsGETApiPermissionCdkStackServerlessRestApi595C3DABGETkeywords1041107E:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - searchF2A83B93
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ServerlessRestApiCF2706A6
+            - /
+            - Ref: ServerlessRestApiDeploymentStageprodA626EFFC
+            - /GET/*
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{keywords}/GET/ApiPermission.CdkStackServerlessRestApi595C3DAB.GET..{keywords}
+  ServerlessRestApikeywordsGETApiPermissionTestCdkStackServerlessRestApi595C3DABGETkeywords93AA9BE7:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - searchF2A83B93
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ServerlessRestApiCF2706A6
+            - /test-invoke-stage/GET/*
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{keywords}/GET/ApiPermission.Test.CdkStackServerlessRestApi595C3DAB.GET..{keywords}
+  ServerlessRestApikeywordsGETDAC2FE42:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: ServerlessRestApikeywords42E69B19
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - searchF2A83B93
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{keywords}/GET/Resource
+  ServerlessRestApimovieID2FA004FA:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ServerlessRestApiCF2706A6
+          - RootResourceId
+      PathPart: "{movieID}"
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{movieID}/Resource
+  ServerlessRestApimovieIDGETApiPermissionCdkStackServerlessRestApi595C3DABGETmovieID4128F489:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - movieDetails0B2D7B6A
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ServerlessRestApiCF2706A6
+            - /
+            - Ref: ServerlessRestApiDeploymentStageprodA626EFFC
+            - /GET/*
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{movieID}/GET/ApiPermission.CdkStackServerlessRestApi595C3DAB.GET..{movieID}
+  ServerlessRestApimovieIDGETApiPermissionTestCdkStackServerlessRestApi595C3DABGETmovieID24B45CE5:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - movieDetails0B2D7B6A
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: ServerlessRestApiCF2706A6
+            - /test-invoke-stage/GET/*
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{movieID}/GET/ApiPermission.Test.CdkStackServerlessRestApi595C3DAB.GET..{movieID}
+  ServerlessRestApimovieIDGETA7B0735A:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: ServerlessRestApimovieID2FA004FA
+      RestApiId:
+        Ref: ServerlessRestApiCF2706A6
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - movieDetails0B2D7B6A
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CdkStack/ServerlessRestApi/Default/{movieID}/GET/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.118.0,@aws-cdk/assets=1.89.0,@aws-cdk/aws-apigateway=1.89.0,@aws-cdk/aws-applicationautoscaling=1.89.0,@aws-cdk/aws-autoscaling-common=1.89.0,@aws-cdk/aws-cloudwatch=1.89.0,@aws-cdk/aws-codeguruprofiler=1.89.0,@aws-cdk/aws-ec2=1.89.0,@aws-cdk/aws-ecr=1.89.0,@aws-cdk/aws-ecr-assets=1.89.0,@aws-cdk/aws-events=1.89.0,@aws-cdk/aws-iam=1.89.0,@aws-cdk/aws-kms=1.89.0,@aws-cdk/aws-lambda=1.89.0,@aws-cdk/aws-logs=1.89.0,@aws-cdk/aws-s3=1.89.0,@aws-cdk/aws-s3-assets=1.89.0,@aws-cdk/aws-sqs=1.89.0,@aws-cdk/aws-ssm=1.89.0,@aws-cdk/cloud-assembly-schema=1.89.0,@aws-cdk/core=1.89.0,@aws-cdk/cx-api=1.89.0,@aws-cdk/region-info=1.89.0,jsii-runtime=node.js/v15.13.0
+    Metadata:
+      aws:cdk:path: CdkStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  ServerlessRestApiEndpoint5118C609:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: ServerlessRestApiCF2706A6
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: ServerlessRestApiDeploymentStageprodA626EFFC
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
